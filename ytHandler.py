@@ -53,7 +53,7 @@ def YtDownload(vidLink, path):
     video_info = youtube_dl.YoutubeDL().extract_info(
         url = vidLink,download=False
     )
-    filename = f"{path}/{video_info['title']}.mp3"
+    filename = f"{path}{video_info['title']}.mp3"
     options={
         'format':'bestaudio/best',
         'keepvideo':False,
@@ -72,7 +72,7 @@ def FileConverter(fileName, path):
     Args:
         fileName (str): Name of the file to convert (must be in the Music directory)
     """
-    filePath = os.path.abspath(f'{path}/{fileName}.mp3')
+    filePath = os.path.abspath(f'{path}{fileName}.mp3')
     outputPath = os.path.abspath(path)
     path_to_ffmpeg_exe = r'C:\\FFmpeg\\bin\\ffmpeg.exe'
 
@@ -84,12 +84,12 @@ def FileConverter(fileName, path):
     #Delete the old file
     os.remove(filePath)
 
-def YtHandler(path = "./Music", convertToWav=True, pipInitialize=False):
+def YtHandler(path = "./Music/", convertToWav=True, pipInitialize=False):
     """Main function of the module, handles all relations with youtube, from searching to downloading the audio
        and converting the file to .wav
 
     Args:
-        path (str, optional): The path where the file will be downloaded. Defaults to "./Music".
+        path (str, optional): The path where the file will be downloaded. Defaults to "/Music".
         convertToWav (bool, optional): Is the file must be converted ?. Defaults to True.
         pipInitialize (bool, optional): Should the program initialize pip packages ? . Defaults to False.
 
@@ -117,8 +117,7 @@ def YtHandler(path = "./Music", convertToWav=True, pipInitialize=False):
             FileConverter(vidTitle, path)
 
 if __name__=='__main__':
-    YtHandler(convertToWav=False)
-
+    YtHandler(convertToWav=False, path="")
 
 """
 pip install -U ffmpeg youtube_dl youtube-search-python

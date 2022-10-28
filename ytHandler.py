@@ -10,6 +10,19 @@ import subprocess
 # Clear the console before the main func start
 import os
 
+# Import pip modules
+import pkg_resources
+import sys
+
+def pipInit():
+    required = {"ffmpeg", "youtube_dl", "youtube-search-python"}
+    installed = {pkg.key for pkg in pkg_resources.working_set}
+    missing = required - installed
+
+    if missing:
+        python = sys.executable
+        subprocess.check_call([python, '-m', 'pip', 'install', *missing], stdout=subprocess.DEVNULL)
+
 def YtSearch(userInput = None):
     """This function returns the link and title of the first video found on youtube
 
@@ -31,7 +44,7 @@ def YtSearch(userInput = None):
 
     return vidLink, vidTitle
 
-def YtDownload(vidLink):
+def YtDownload(vidLink, path):
     """Download the audio from the video link given by the user
 
     Args:
@@ -40,7 +53,7 @@ def YtDownload(vidLink):
     video_info = youtube_dl.YoutubeDL().extract_info(
         url = vidLink,download=False
     )
-    filename = f"/Music/{video_info['title']}.mp3"
+    filename = f"{path}/{video_info['title']}.mp3"
     options={
         'format':'bestaudio/best',
         'keepvideo':False,
@@ -53,14 +66,14 @@ def YtDownload(vidLink):
 
     print("\nDownload complete !")
 
-def FileConverter(fileName):
+def FileConverter(fileName, path):
     """Converts the file given in arg from .mp3 to .wav
 
     Args:
         fileName (str): Name of the file to convert (must be in the Music directory)
     """
-    filePath = os.path.abspath(f'./Music/{fileName}.mp3')
-    outputPath = os.path.abspath('./Music')
+    filePath = os.path.abspath(f'{path}/{fileName}.mp3')
+    outputPath = os.path.abspath(path)
     path_to_ffmpeg_exe = r'C:\\FFmpeg\\bin\\ffmpeg.exe'
 
     #Convert the file
@@ -71,13 +84,19 @@ def FileConverter(fileName):
     #Delete the old file
     os.remove(filePath)
 
-def YtHandler(convertToWav=True):
+def YtHandler(path = "./Music", convertToWav=True, pipInitialize=False):
     """Main function of the module, handles all relations with youtube, from searching to downloading the audio
        and converting the file to .wav
 
     Args:
+        path (str, optional): The path where the file will be downloaded. Defaults to "./Music".
         convertToWav (bool, optional): Is the file must be converted ?. Defaults to True.
+        pipInitialize (bool, optional): Should the program initialize pip packages ? . Defaults to False.
+
     """
+    if pipInitialize:
+        pipInit()
+
     os.system('cls')
     userInput = str(input("What is the name/link of the video you want to download ? : "))
 
@@ -93,16 +112,14 @@ def YtHandler(convertToWav=True):
 
     if rep in ['y', 'Y', 'Yes', 'yes']:
         print("Downloading...\n")
-        YtDownload(vidLink)
+        YtDownload(vidLink, path)
         if convertToWav:
-            FileConverter(vidTitle)
+            FileConverter(vidTitle, path)
 
 if __name__=='__main__':
-    YtHandler()
+    YtHandler(convertToWav=False)
 
 
 """
-pip install ffmpeg
-pip install youtube_dl
-pip install youtube-search-python
+pip install -U ffmpeg youtube_dl youtube-search-python
 """
